@@ -122,7 +122,7 @@ class Fortune {
         do {
             $quote .= $line;
             $line = fgets($fh);
-        } while (($line !== "%\n") and ($line !== '%') and (!feof($fh)));
+        } while (($line !== "%" . PHP_EOL) and ($line !== '%') and (!feof($fh)));
         return $quote;
     }
 
