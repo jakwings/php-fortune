@@ -1,0 +1,10 @@
+%
+Hello, world.
+%
+The second quote.
+%
+The third quote.
+%
+The fourth quote.
+%
+Goodbye.

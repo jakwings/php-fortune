@@ -6,6 +6,8 @@
  */
 class Fortune {
 
+    const MAX_LENGTH = 2147483647;  // 2^31 - 1
+
     public function QuoteFromDir($dir) {
         $files = array_filter(glob($dir . '/*', GLOB_NOSORT) ?: array(), function ($file) {
             return is_file($file) and substr(strrchr($file, '.'), 1) !== 'dat';
@@ -72,16 +74,17 @@ class Fortune {
             throw new Exception('FORTUNE: Failed to load source file.');
         }
         $length = 0;
-        $max_length = 2147483647;  // 2^31 - 1
-        $eol_length = strlen(PHP_EOL);
         $longest = 0;
-        $shortest = $max_length;
+        $shortest = self::MAX_LENGTH;
         $indices = array();
         $last_index = 0;
         while (!feof($fh)) {
-            $line = fgets($fh);
-            if (($line === '%' . PHP_EOL) or feof($fh)) {
-                if (($length > $eol_length) and ($length <= $max_length)) {
+            $line = $this->_ReadLine($fh, self::MAX_LENGTH, "\n");
+            if (($line === "%\n") or ($line === "%\r\n") or ($line === '%') or feof($fh)) {
+                if (feof($fh) and $line) {
+                    $length += strlen($line);
+                }
+                if (($length > 0) and ($length <= self::MAX_LENGTH)) {
                     $indices[] = $last_index;
                     if ($length > $longest) {
                         $longest = $length;
@@ -89,8 +92,8 @@ class Fortune {
                     if ($length < $shortest) {
                         $shortest = $length;
                     }
-                    $last_index = ftell($fh);
                 }
+                $last_index = ftell($fh);
                 $length = 0;
             } else {
                 $length += strlen($line);
@@ -99,7 +102,7 @@ class Fortune {
         fclose($fh);
 
         // Write header.
-        if (($fh = fopen($file . '.dat', 'w')) === FALSE) {
+        if (($fh = fopen($file . '.dat', 'wb')) === FALSE) {
             throw new Exception('FORTUNE: Failed to write index file.');
         }
         $number = count($indices);
@@ -121,8 +124,8 @@ class Fortune {
         $quote = '';
         do {
             $quote .= $line;
-            $line = fgets($fh);
-        } while (($line !== "%\n") and ($line !== '%') and (!feof($fh)));
+            $line = $this->_ReadLine($fh, self::MAX_LENGTH, "\n");
+        } while ($line and ($line !== "%\n") and ($line !== "%\r\n") and ($line !== '%'));
         return $quote;
     }
 
@@ -140,6 +143,36 @@ class Fortune {
         $n += isset($bytes[1]) ? (ord($bytes[1]) << 16) : 0;
         $n += isset($bytes[0]) ? (ord($bytes[0]) << 24) : 0;
         return $n;
+    }
+
+    private function _ReadLine($fh, $length, $ending) {
+        $pos = ftell($fh);
+        $eol_len = strlen($ending);
+        $len = 0;
+        $line = '';
+        while ($str = fread($fh, 512)) {
+            $line .= $str;
+            $offset = ($len > $eol_len) ? ($len - $eol_len) : $len;
+            $index = strpos($line, $ending, $len);
+            if ($index !== FALSE) {
+                $len = $index + $eol_len;
+                $line = substr($line, 0, $len);
+                break;
+            }
+            $len += strlen($str);
+            if ($len > $length) {
+                break;
+            }
+        }
+        if ($len > 0) {
+            if ($len > $length) {
+                fseek($fh, $pos + $length);
+                return substr($line, 0, $length);
+            }
+            fseek($fh, $pos + $len);
+            return $line;
+        }
+        return FALSE;
     }
 }
 ?>
