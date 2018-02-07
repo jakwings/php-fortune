@@ -106,6 +106,10 @@ class Fortune {
             throw new Exception('FORTUNE: Failed to write index file.');
         }
         $number = count($indices);
+        if ($number === 0) {
+            $longest = 0;
+            $shortest = 0;
+        }
         $this->_WriteUint32($fh, 2);                // version number (unofficial)
         $this->_WriteUint32($fh, $number);          // number of quotes
         $this->_WriteUint32($fh, $longest);         // length of longest quote
