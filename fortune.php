@@ -157,7 +157,7 @@ class Fortune {
         while ($str = fread($fh, 512)) {
             $line .= $str;
             $offset = ($len > $eol_len) ? ($len - $eol_len) : $len;
-            $index = strpos($line, $ending, $len);
+            $index = strpos($line, $ending, $offset);
             if ($index !== FALSE) {
                 $len = $index + $eol_len;
                 $line = substr($line, 0, $len);
