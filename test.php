@@ -7,7 +7,7 @@ $filepath = 'fortunes/data.txt';
 
 $fortune->CreateIndexFile($filepath);
 
-assert($fortune->GetExactQuote($filepath, 0) === "Hello, world.\n");
+assert($fortune->GetExactQuote($filepath, 0) === "Hello, world.\r\n");
 assert($fortune->GetExactQuote($filepath, 1) === "The second quote.\n");
 assert($fortune->GetExactQuote($filepath, 2) === "The third quote.\n");
 assert($fortune->GetExactQuote($filepath, 3) === "The fourth quote.\n");
