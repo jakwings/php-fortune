@@ -1,21 +1,26 @@
 php-fortune
 ===========
 
-A simple script for fortune cookie files. It is not compatible with strfile data format v1.x.
+A simple script for fortune cookie files.
 
-### Basic Usage
+It is not fully compatible with strfile data format v1.x. Only `%` is allowed
+as quote delimiters. Lines started with `%%` are never treated as comments.
+ROT13 transformation for text and reordering for indexes are not supported.
+Both LF and CRLF are valid line terminators, which are included in the quotes.
 
-~~~php
+## Basic Usage
+
+```php
 <?php
 // ...
 
 require 'fortune.php';
 $fortune = new Fortune();
 
-// Get random quote from a directory which contains source files.
-// If the index files *.dat doesn't exist, it will try to generate them.
+// Read a random quote from a directory which contains the source files.
+// The index files *.dat will be auto-generated if not found in the directory.
 $fortune->QuoteFromDir($dir);
 
 // ...
 ?>
-~~~
+```
