@@ -126,6 +126,7 @@ class Fortune {
         for ($i = 0; $i < $number; $i++) {
             $this->_WriteUint32($fh, $indices[$i]);
         }
+        fflush($fh);
         flock($fh, LOCK_UN);
         fclose($fh);
     }
