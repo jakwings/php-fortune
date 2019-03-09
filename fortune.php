@@ -36,9 +36,13 @@ class Fortune {
     }
 
     public function GetNumberOfQuotes($file) {
-        $fh = fopen($file . '.dat', 'rb');
+        if (($fh = fopen($file . '.dat', 'rb')) === FALSE) {
+            return 'FORTUNE: Failed to open index file.';
+        }
+        flock($fh, LOCK_SH);
         fseek($fh, 4, SEEK_SET);
         $number = $this->_ReadUint32($fh);
+        flock($fh, LOCK_UN);
         fclose($fh);
         return $number;
     }
@@ -48,8 +52,10 @@ class Fortune {
         if (($fh = fopen($index_file, 'rb')) === FALSE) {
             return 'FORTUNE: Failed to open index file.';
         }
+        flock($fh, LOCK_SH);
         fseek($fh, 4 * (6 + $index), SEEK_SET);
         $physical_index = $this->_ReadUint32($fh);
+        flock($fh, LOCK_UN);
         fclose($fh);
         if (($fh = fopen($file, 'rb')) === FALSE) {
             return 'FORTUNE: Failed to open source file.';
@@ -105,6 +111,7 @@ class Fortune {
         if (($fh = fopen($file . '.dat', 'wb')) === FALSE) {
             throw new Exception('FORTUNE: Failed to write index file.');
         }
+        flock($fh, LOCK_EX);
         $number = count($indices);
         if ($number === 0) {
             $longest = 0;
@@ -119,6 +126,7 @@ class Fortune {
         for ($i = 0; $i < $number; $i++) {
             $this->_WriteUint32($fh, $indices[$i]);
         }
+        flock($fh, LOCK_UN);
         fclose($fh);
     }
 
