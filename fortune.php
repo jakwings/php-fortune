@@ -108,10 +108,11 @@ class Fortune {
         fclose($fh);
 
         // Write header.
-        if (($fh = fopen($file . '.dat', 'wb')) === FALSE) {
+        if (($fh = fopen($file . '.dat', 'ab')) === FALSE) {
             throw new Exception('FORTUNE: Failed to write index file.');
         }
         flock($fh, LOCK_EX);
+        rewind($fh);
         $number = count($indices);
         if ($number === 0) {
             $longest = 0;
