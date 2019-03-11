@@ -112,6 +112,7 @@ class Fortune {
             throw new Exception('FORTUNE: Failed to write index file.');
         }
         flock($fh, LOCK_EX);
+        ftruncate($fh, 0);
         rewind($fh);
         $number = count($indices);
         if ($number === 0) {
