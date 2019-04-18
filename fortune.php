@@ -70,7 +70,7 @@ class Fortune {
         if ($number < 1) {
             return;
         }
-        $index = mt_rand(1, $number - 1);
+        $index = mt_rand(0, $number - 1);
         return $this->GetExactQuote($file, $index);
     }
 
